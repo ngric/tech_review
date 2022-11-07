@@ -88,7 +88,7 @@ available in Lucene? What is the most efficient way to do this?
 This appears to happen by default. See the ~indexPath~ and ~directory~ lines above. Though, I imagine there are some
 more things to look at (or there wouldn't be a storage package)
 
-** Querying [fn:search]
+** Querying
 
 More from the example on the index[fn:index]:
 
