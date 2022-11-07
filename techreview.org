@@ -1,0 +1,92 @@
+#+PANDOC_VARIABLES: geometry:margin=1in
+
+* Tech Review
+
+** Overview
+
+As Lucene is a 20 year old project, widely known and used, I don't think I could really offer anything
+new or insightful on the topic. I will, instead, focus simply on what I need to complete my project and
+the features of Lucene that I might personally use for that purpose.
+
+My project is essentially just a search engine, but the specific things that I need from Lucene are:
+ - Process new pages/documents as they come in, index them with their url as the key
+ - Store/load this index
+ - Query this index
+In this document I'll go through the Lucene documentation [fn:doc], picking out things that
+are likely to be useful. This should all (hopefully) prove rather simple, considering Lucene /is/ a search library. 
+
+** Indexing 
+
+Starting from the top, I need to be able to append documents to the index in real time (something I couldn't find
+any mechanism for within MeTA [fn:meta], which I initially thought to use, leading me to Lucene). As the user browses,
+I want to be able to index the contents of all pages they open. Ideally, I wouldn't need to save the pages to disk
+before indexing them.
+
+#+BEGIN_QUOTE
+IndexWriter is used to create an index, and to add, update and delete documents. The IndexWriter class is thread safe, and enforces a single instance per index. Creating an IndexWriter creates a new index or opens an existing index for writing, in a Directory, depending on the configuration in IndexWriterConfig. A Directory is an abstraction that typically represents a local file-system directory (see various implementations of FSDirectory), but it may also stand for some other storage, such as RAM. [fn:indexing]
+#+END_QUOTE
+
+Promising! (though I'm not seeing any mention of a possibility to stream in files one-by-one)
+
+#+begin_src java
+  Analyzer analyzer = new StandardAnalyzer();
+
+  Path indexPath = Files.createTempDirectory("tempIndex");
+  Directory directory = FSDirectory.open(indexPath);
+  IndexWriterConfig config = new IndexWriterConfig(analyzer);
+  IndexWriter iwriter = new IndexWriter(directory, config);
+  Document doc = new Document();
+  String text = "This is the text to be indexed.";
+  doc.add(new Field("fieldname", text, TextField.TYPE_STORED));
+  iwriter.addDocument(doc);
+  iwriter.close();
+
+#+end_src [fn:index]
+
+So, as I build the documents myself, I don't need to read them off disk! Additionally, "fieldname" is set manually,
+and isn't some random/automatic id, so I can stick source URLs there.
+
+** Store [fn:storage]
+
+I obviously need the index to persist beyond a single browsing session. What index storage mechanisms are
+available in Lucene? What is the most efficient way to do this?
+    - Store document indicies
+        - not necessarily in any human readible format
+        - How do I make this persist on disk?
+This appears to happen by default. See the ~indexPath~ and ~directory~ lines above. Though, I imagine there are some
+more things to look at (or there wouldn't be a storage package)
+
+** Querying [fn:search]
+
+Not much to add right now. Need to be able to search the index or it's useless.
+    - query index
+        - return matching urls
+        - context would be nice, but not necessary
+    
+** PyLucene
+- PyLucene
+    - I can't be assed to get all this java shit working
+    - PyLucene should work the same
+    - Wrapper around lucene, not a port
+
+** Footnotes
+
+[fn:hist] https://techmonitor.ai/technology/hardware/apache-lucene
+
+[fn:ucla] http://web.cs.ucla.edu/classes/winter15/cs144/projects/lucene/index.html
+
+[fn:meta] https://meta-toolkit.org/
+
+[fn:doc] https://lucene.apache.org/core/9_4_1/index.html
+
+[fn:demo] https://lucene.apache.org/core/9_4_1/demo/index.html
+
+[fn:storage] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/store/package-summary.html
+
+[fn:document] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/document/package-summary.html
+
+[fn:indexing] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/index/package-summary.html
+
+[fn:index] https://javadoc.io/doc/org.apache.lucene/lucene-core/latest/index.html
+
+[fn:search] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/search/package-summary.html
