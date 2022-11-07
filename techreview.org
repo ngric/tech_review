@@ -121,14 +121,25 @@ Having trouble setting up a java environment?
 ** Footnotes
 
 [fn:analyzer] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/analysis/Analyzer.html
+
 [fn:doc] https://lucene.apache.org/core/9_4_1/index.html
+
 [fn:document] https://javadoc.io/doc/org.apache.lucene/lucene-core/latest/org/apache/lucene/document/Document.html
+
 [fn:index] https://javadoc.io/doc/org.apache.lucene/lucene-core/latest/index.html
+
 [fn:indexingdemo] https://lucene.apache.org/core/9_4_1/demo/src-html/org/apache/lucene/demo/IndexFiles.html
-[fn:isearcher] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/search/IndexSearcher.html 
+
+[fn:isearcher] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/search/IndexSearcher.html
+
 [fn:iw] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/index/IndexWriter.html
+
 [fn:iwc] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/index/IndexWriterConfig.html
+
 [fn:meta] https://meta-toolkit.org/
+
 [fn:search] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/search/package-summary.html
+
 [fn:textfield] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/document/TextField.html
+
 [fn:ucla] http://web.cs.ucla.edu/classes/winter15/cs144/projects/lucene/index.html
