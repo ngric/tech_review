@@ -11,7 +11,9 @@ My project is essentially just a search engine over internet browsing history, a
  - Query this index
 In this document I'll go through the Lucene documentation [fn:doc], picking out things that are likely to be useful. This should all (hopefully) prove rather simple, considering Lucene /is/ a search library. 
 
-Starting from the top, I need to be able to append documents to the index in real time (something I couldn't find any mechanism for within MeTA [fn:meta], which I initially thought to use, leading me to Lucene). As the user browses, I want to be able to index the contents of all pages they open. Ideally, I wouldn't need to save the pages to disk before indexing them.
+** Indexing
+
+Starting from the top, I need to be able to append documents to the index in real time (something I couldn't find any mechanism for within MeTA [fn:meta], which I initially thought to use). As the user browses, I want to be able to index the contents of all pages they open. Ideally, I wouldn't need to save the pages to disk before indexing them.
 
 The following snippet of code, from the Lucene documentation [fn:index], shows how I might want to generate an index:
 
@@ -32,13 +34,13 @@ The following snippet of code, from the Lucene documentation [fn:index], shows h
 
 Breaking this down:
 
-- ~Analyzer~?
+- ~Analyzer~
   #+begin_quote
   An Analyzer builds TokenStreams, which analyze text. */It thus represents a policy for extracting index terms from text./* [fn:analyzer]
   #+end_quote
   ~StandardAnalyzer~ appears to be general purpose, but there are also one that specialize in, for example, Japanese text. For this project, ~StandardAnalyzer~ is likely to be sufficient, though I would like to see at some point if multiple analyzers could be combined or chained together.
 
-- ~IndexWriter~?
+- ~IndexWriter~
   #+begin_quote
   An IndexWriter creates and maintains an index. [fn:iw]
   #+end_quote
@@ -48,23 +50,19 @@ Breaking this down:
   #+begin_quote
   Documents are the unit of indexing and search. [fn:document]
   #+end_quote
-  Before 
-  So, as I build the documents myself, I don't need to read them off disk! Additionally, "fieldname" is set manually, and isn't some random/automatic id, so I can stick source URLs there.
+  Before text can be indexed, it needs to be placed within a =Document= object. They do not need to be read in from disk. Additionally, "fieldname" is set explicitly, and isn't some random/automatic id, so it should be trivial to index on URL.
 
-- ~TextField.TYPE_STORED~?
+- ~TextField.TYPE_STORED~
   #+begin_quote
   A field that is indexed and tokenized, without term vectors. For example this would be used on a 'body' field, that contains the bulk of a document's text. [fn:textfield]
   #+end_quote
-  It seems I may be able to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~, though I'm not sure how that works. Look into this. I don't particularly need or want to store the pages themselves
+  It seems it may be possible to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~. This may be useful to save on disk usage, if the user doesn't need to be shown context for query results.
 
-
-** Store [fn:storage]
-
-I obviously need the index to persist beyond a single browsing session. What index storage mechanisms are available in Lucene? What is the most efficient way to do this? This appears to happen "by default". See the ~indexPath~ and ~directory~ lines above. Though, I imagine there are some more things to look at (or there wouldn't be a storage package), I won't go into that right now.
+So that covers all of my Indexing-related requirements quite nicely, including live updates and storage.
 
 ** Querying
 
-More from the example on the index[fn:index]:
+Pulling more from the example in the Lucene documentation[fn:index], we can see how querying is done as well:
 
 #+begin_src java
 
@@ -87,29 +85,31 @@ More from the example on the index[fn:index]:
 
 #+end_src
 
-*** What is all that?
-- What is ~IndexSearcher~?
+Let's go over this piece by piece again:
+
+- ~IndexSearcher~
   #+begin_quote
   Implements search over a single IndexReader.
-  Applications usually need only call the inherited search(Query,int) method. For performance reasons, if your index is unchanging, you should share a single IndexSearcher instance across multiple searches instead of creating a new one per-search. If your index has changed and you wish to see the changes reflected in searching, you should use DirectoryReader.openIfChanged(DirectoryReader) to obtain a new reader and then create a new IndexSearcher from that. Also, for low-latency turnaround it's best to use a near-real-time reader  [fn:isearcher]
+  [...] For performance reasons, if your index is unchanging, you should share a single IndexSearcher instance across multiple searches instead of creating a new one per-search. *If your index has changed and you wish to see the changes reflected in searching, you should use DirectoryReader.openIfChanged(DirectoryReader) to obtain a new reader and then create a new IndexSearcher from that.* [fn:isearcher]
   #+end_quote
-  May require some work here, as my index will receive updates pretty regularly (every page load)
+  This opens an index for querying (in this case a directory). As my index will receive updates pretty regularly (every time the user opens a webpage), some precaution will be necessary to make sure we're querying with those changes accounted for.
 
-- What is ~QueryParser~?
+- ~QueryParser~
   #+begin_quote
   QueryParser parses the user query string and constructs a Lucene Query object [...]
    The first parameter to the QueryParser constructor specifies the default search field, which is content field in this case. This default field is used if the query string does not specify the search field. The second parameter specifies the Analyzer to be used when the QueryParser parses the user query string. [fn:ucla]
   #+end_quote
 
-- What is ~Query~?
-  Representation of a user query.
-  
-- What is ~ScoreDoc~?
-  List of documents and their scores. It appears that you can choose the retrieval model used for scoring [fn:search]
-  Doesn't actually return the documents themselves, but contains the documents "number" in the index, score, etc
-  The ~10~ it's taking is the number of results we want to get back.
+- ~Query~
 
-- What is being returned in ~hitDoc~?
+  Representation of a user query. We can take the user's query as a string, pass it through the above parser, and receive an object Lucene can use to query the index.
+  
+- ~ScoreDoc~
+
+  List of documents and their scores. It appears that you can choose the retrieval model used for scoring [fn:search]. This doesn't actually contain the documents themselves, but contains the documents "number" in the index, score, etc. The ~10~ being pass in here is the number of results we want to get back.
+
+- ~hitDoc~
+
   Gets the actual document referred to in ScoreDoc
 
 ** PyLucene
