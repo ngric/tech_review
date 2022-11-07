@@ -114,9 +114,7 @@ Let's go over this piece by piece again:
 
 So it also seems that Lucene should cover all of my query related needs. It even appears to have multiple available ranking functions available to try out once I have an index built up.
 
-** PyLucene
-
-Having trouble setting up a java environment?
+Lucene should rather cleanly allow me to accomplish what I need in my search project. Hardly surprising, given its long history of doing exactly that, but nice to see none the less. Further, should java not be a great fit for whatever reason, there is a python wrapper available[fn:pylucene], as well as a number of ports to other languages.
 
 ** Footnotes
 
@@ -137,6 +135,8 @@ Having trouble setting up a java environment?
 [fn:iwc] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/index/IndexWriterConfig.html
 
 [fn:meta] https://meta-toolkit.org/
+
+[fn:pylucene]https://lucene.apache.org/pylucene/ 
 
 [fn:search] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/search/package-summary.html
 
