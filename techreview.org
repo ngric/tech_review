@@ -74,6 +74,7 @@ and isn't some random/automatic id, so I can stick source URLs there.
   A field that is indexed and tokenized, without term vectors. For example this would be used on a 'body' field, that contains the bulk of a document's text. [fn:textfield]
   #+end_quote
   It seems I may be able to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~, though I'm not sure how that works.
+  Look into this. I don't particularly need or want to store the pages themselves
 
 How could I get PDFs to index as well?
 
@@ -114,16 +115,35 @@ More from the example on the index[fn:index]:
 
 *** What is all that?
 - What is ~IndexSearcher~?
+  #+begin_quote
+  Implements search over a single IndexReader.
+  Applications usually need only call the inherited search(Query,int) method. For performance reasons, if your index is unchanging, you should share a single IndexSearcher instance across multiple searches instead of creating a new one per-search. If your index has changed and you wish to see the changes reflected in searching, you should use DirectoryReader.openIfChanged(DirectoryReader) to obtain a new reader and then create a new IndexSearcher from that. Also, for low-latency turnaround it's best to use a near-real-time reader  [fn:isearcher]
+  #+end_quote
+  May require some work here, as my index will receive updates pretty regularly (every page load)
+
 - What is ~QueryParser~?
+  #+begin_quote
+  QueryParser parses the user query string and constructs a Lucene Query object [...]
+   The first parameter to the QueryParser constructor specifies the default search field, which is content field in this case. This default field is used if the query string does not specify the search field. The second parameter specifies the Analyzer to be used when the QueryParser parses the user query string. [fn:ucla]
+  #+end_quote
+
 - What is ~Query~?
+  Representation of a user query.
+  
 - What is ~ScoreDoc~?
+  List of documents and their scores. It appears that you can choose the retrieval model used for scoring [fn:search]
+  Doesn't actually return the documents themselves, but contains the documents "number" in the index, score, etc
+  The ~10~ it's taking is the number of results we want to get back.
+
 - What is being returned in ~hitDoc~?
+  Gets the actual document referred to in ScoreDoc
 
 ** PyLucene
 
 Having trouble setting up a java environment?
 
 ** Footnotes
+[fn:isearcher] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/search/IndexSearcher.html 
 
 [fn:textfield] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/document/TextField.html
 
