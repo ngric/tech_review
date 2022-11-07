@@ -64,15 +64,15 @@ and isn't some random/automatic id, so I can stick source URLs there.
   #+end_quote
 
 - What is ~Document~?
-#+begin_quote
-Documents are the unit of indexing and search. [fn:document]
-#+end_quote
+  #+begin_quote
+  Documents are the unit of indexing and search. [fn:document]
+  #+end_quote
 
 - What is ~TextField.TYPE_STORED~?
-#+begin_quote
-A field that is indexed and tokenized, without term vectors. For example this would be used on a 'body' field, that contains the bulk of a document's text. [fn:textfield]
-#+end_quote
-It seems I may be able to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~, though I'm not sure how that works.
+  #+begin_quote
+  A field that is indexed and tokenized, without term vectors. For example this would be used on a 'body' field, that contains the bulk of a document's text. [fn:textfield]
+  #+end_quote
+  It seems I may be able to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~, though I'm not sure how that works.
 
 How could I get PDFs to index as well?
 
