@@ -26,7 +26,8 @@ before indexing them.
 IndexWriter is used to create an index, and to add, update and delete documents. The IndexWriter class is thread safe, and enforces a single instance per index. Creating an IndexWriter creates a new index or opens an existing index for writing, in a Directory, depending on the configuration in IndexWriterConfig. A Directory is an abstraction that typically represents a local file-system directory (see various implementations of FSDirectory), but it may also stand for some other storage, such as RAM. [fn:indexing]
 #+END_QUOTE
 
-Promising! (though I'm not seeing any mention of a possibility to stream in files one-by-one)
+Promising! (though I'm not seeing any mention of a possibility to stream in files one-by-one). From the example
+in the javadoc[fn:index]:
 
 #+begin_src java
   Analyzer analyzer = new StandardAnalyzer();
@@ -41,10 +42,39 @@ Promising! (though I'm not seeing any mention of a possibility to stream in file
   iwriter.addDocument(doc);
   iwriter.close();
 
-#+end_src [fn:index]
+#+end_src
 
 So, as I build the documents myself, I don't need to read them off disk! Additionally, "fieldname" is set manually,
 and isn't some random/automatic id, so I can stick source URLs there.
+
+- What is ~Analyzer~?
+  #+begin_quote
+  An Analyzer builds TokenStreams, which analyze text. */It thus represents a policy for extracting index terms from text./* [fn:analyzer]
+  #+end_quote
+  ~StandardAnalyzer~ appears to be general purpose, but there are also one that specialize in, for example, Japanese text.
+
+- What is ~IndexWriterConfig~?
+  #+begin_quote
+  Holds all the configuration that is used to create an IndexWriter. [fn:iwc]
+  #+end_quote
+
+- What is ~IndexWriter~?
+  #+begin_quote
+  An IndexWriter creates and maintains an index. [fn:iw]
+  #+end_quote
+
+- What is ~Document~?
+#+begin_quote
+Documents are the unit of indexing and search. [fn:document]
+#+end_quote
+
+- What is ~TextField.TYPE_STORED~?
+#+begin_quote
+A field that is indexed and tokenized, without term vectors. For example this would be used on a 'body' field, that contains the bulk of a document's text. [fn:textfield]
+#+end_quote
+It seems I may be able to index pages /without/ storing the contents by using ~TextField.TYPE_NOT_STORED~, though I'm not sure how that works.
+
+How could I get PDFs to index as well?
 
 ** Store [fn:storage]
 
@@ -58,18 +88,48 @@ more things to look at (or there wouldn't be a storage package)
 
 ** Querying [fn:search]
 
-Not much to add right now. Need to be able to search the index or it's useless.
-    - query index
-        - return matching urls
-        - context would be nice, but not necessary
-    
+More from the example on the index[fn:index]:
+
+#+begin_src java
+
+  // Now search the index:
+  DirectoryReader ireader = DirectoryReader.open(directory);
+  IndexSearcher isearcher = new IndexSearcher(ireader);
+  // Parse a simple query that searches for "text":
+  QueryParser parser = new QueryParser("fieldname", analyzer);
+  Query query = parser.parse("text");
+  ScoreDoc[] hits = isearcher.search(query, 10).scoreDocs;
+  assertEquals(1, hits.length);
+  // Iterate through the results:
+  for (int i = 0; i < hits.length; i++) {
+    Document hitDoc = isearcher.doc(hits[i].doc);
+    assertEquals("This is the text to be indexed.", hitDoc.get("fieldname"));
+  }
+  ireader.close();
+  directory.close();
+  IOUtils.rm(indexPath);
+
+#+end_src
+
+- What is ~IndexSearcher~?
+- What is ~QueryParser~?
+- What is ~Query~?
+- What is ~ScoreDoc~?
+- What is being returned in ~hitDoc~?
+
 ** PyLucene
-- PyLucene
-    - I can't be assed to get all this java shit working
-    - PyLucene should work the same
-    - Wrapper around lucene, not a port
+
+Having trouble setting up a java environment?
 
 ** Footnotes
+
+[fn:textfield] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/document/TextField.html
+
+[fn:iw] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/index/IndexWriter.html
+
+[fn:iwc] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/index/IndexWriterConfig.html
+
+[fn:analyzer] https://javadoc.io/static/org.apache.lucene/lucene-core/9.4.1/org/apache/lucene/analysis/Analyzer.html
 
 [fn:hist] https://techmonitor.ai/technology/hardware/apache-lucene
 
@@ -83,7 +143,7 @@ Not much to add right now. Need to be able to search the index or it's useless.
 
 [fn:storage] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/store/package-summary.html
 
-[fn:document] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/document/package-summary.html
+[fn:document] https://javadoc.io/doc/org.apache.lucene/lucene-core/latest/org/apache/lucene/document/Document.html
 
 [fn:indexing] https://lucene.apache.org/core/9_4_1/core/org/apache/lucene/index/package-summary.html
 
