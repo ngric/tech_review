@@ -47,6 +47,7 @@ in the javadoc[fn:index]:
 So, as I build the documents myself, I don't need to read them off disk! Additionally, "fieldname" is set manually,
 and isn't some random/automatic id, so I can stick source URLs there.
 
+*** What is all that?
 - What is ~Analyzer~?
   #+begin_quote
   An Analyzer builds TokenStreams, which analyze text. */It thus represents a policy for extracting index terms from text./* [fn:analyzer]
@@ -111,6 +112,7 @@ More from the example on the index[fn:index]:
 
 #+end_src
 
+*** What is all that?
 - What is ~IndexSearcher~?
 - What is ~QueryParser~?
 - What is ~Query~?
