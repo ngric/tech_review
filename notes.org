@@ -82,11 +82,8 @@ How could I get PDFs to index as well?
 
 I obviously need the index to persist beyond a single browsing session. What index storage mechanisms are
 available in Lucene? What is the most efficient way to do this?
-    - Store document indicies
-        - not necessarily in any human readible format
-        - How do I make this persist on disk?
-This appears to happen by default. See the ~indexPath~ and ~directory~ lines above. Though, I imagine there are some
-more things to look at (or there wouldn't be a storage package)
+This appears to happen "by default". See the ~indexPath~ and ~directory~ lines above. Though, I imagine there are some
+more things to look at (or there wouldn't be a storage package), I won't go into that right now.
 
 ** Querying
 

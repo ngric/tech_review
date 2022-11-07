@@ -1,0 +1,3 @@
+#+PANDOC_VARIABLES: geometry:margin=1in
+
+Stop procrastinating and finish this already
